@@ -1,5 +1,4 @@
 # -*-coding:utf-8-*-
-__author__ = 'besnier'
 
 import groupe_points as gp
 import skimage as sk
@@ -13,14 +12,28 @@ import os
 from random import random
 import skimage.draw as skd
 
+__author__ = 'Clément Besnier'
 
-class Segmenteur_par_proximite:
+
+class SegmenteurParProximite:
+    """
+    Classe qui sert de segmenteur
+    """
     def __init__(self, points_contour, distance_maximale):
+        """
+
+        :param points_contour: Liste de Points
+        :param distance_maximale: Distance maximale où on accepte qu'un un point et un groupe de points sont suffisamment proches
+        """
         self.points_contour = points_contour
         self.distance_maximale = distance_maximale
         self.etiquettes = []
 
     def segmenter(self):
+        """
+
+        :return: liste de groupes de points
+        """
         label_courant = 0
         self.etiquettes.append(gp.GroupePoint())
         self.etiquettes[label_courant].ajouter_point(self.points_contour.retirer_point(0))
@@ -48,28 +61,36 @@ class Segmenteur_par_proximite:
                 aze += 1
         return self.etiquettes
 
+
 def script_segmentation():
+    """
+    Récupère l'image
+    La transforme au format voulu
+    On segmente l'image en cadres
+    On enregistre le résultat
+    :return:
+    """
     image_gris = skio.imread("entree\\papier_lettre.jpg", as_grey=True)
-    #image = sktr.rotate(image, 3.1415/2.)
+    # image = sktr.rotate(image, 3.1415/2.)
     tt = 300
     uu = 500
     image_resize = sktr.resize(image_gris, (tt, uu))
-    #print(image_resize[10:20, 10:20])
-    #image_gris = skc.rgb2gray(image_resize)
-    #print(image_resize[10:20, 10:20])
-    #skio.imsave("entree\\gris.jpg", image_resize)
-    #image_gau = skfi.gaussian(image_resize, 0.1)
-    #image_sobel = skfi.sobel(image_gau)
-    #print(image_sobel[10:20, 10:20])
-    #skio.imsave("entree\\sobel.jpg", image_sobel)
-    #a = image_sobel > 0.005*np.ones(image_sobel.shape)
+    # print(image_resize[10:20, 10:20])
+    # image_gris = skc.rgb2gray(image_resize)
+    # print(image_resize[10:20, 10:20])
+    # skio.imsave("entree\\gris.jpg", image_resize)
+    # image_gau = skfi.gaussian(image_resize, 0.1)
+    # image_sobel = skfi.sobel(image_gau)
+    # print(image_sobel[10:20, 10:20])
+    # skio.imsave("entree\\sobel.jpg", image_sobel)
+    # a = image_sobel > 0.005*np.ones(image_sobel.shape)
     image_canny = np.uint8(skf.canny(image_resize))*255
-    #print(image_canny[10:20, 100:150])
+    # print(image_canny[10:20, 100:150])
     skio.imsave("entree\\canny.jpg", image_canny)
     n_points_choisis = int(tt*uu*0.1)
-    #l_points = []
-    #yy = 0
-    #while yy < n_points_choisis:
+    # l_points = []
+    # yy = 0
+    # while yy < n_points_choisis:
     #    point = gp.Point(int(random()*tt), int(random()*uu))
     #    if image_canny[point.y, point.x] == 255:
     #        l_points.append(point)
@@ -79,13 +100,15 @@ def script_segmentation():
         for j in range(tt):
             if image_canny[j, i] == 255:
                 pc.ajouter_point(gp.Point(i, j))
-    spp = Segmenteur_par_proximite(pc, 3)
+    spp = SegmenteurParProximite(pc, 3)
     etiquettes = spp.segmenter()
     hh = 0
     print(etiquettes)
     for gp in etiquettes:
-        if gp.calculer_min_y() - 5 >= 0 and gp.calculer_max_y()+5 < tt and gp.calculer_min_x()-5 >= 0 and gp.calculer_max_x()+5 <uu:
-            skio.imsave("lettres\\"+str(hh)+".jpg", image_resize[gp.calculer_min_y() - 5:gp.calculer_max_y()+5, gp.calculer_min_x()-5:gp.calculer_max_x()+5])
+        if gp.calculer_min_y() - 5 >= 0 and gp.calculer_max_y()+5 < tt and \
+                gp.calculer_min_x()-5 >= 0 and gp.calculer_max_x()+5 < uu:
+            skio.imsave("lettres\\"+str(hh)+".jpg", image_resize[gp.calculer_min_y() - 5:gp.calculer_max_y()+5,
+                                                    gp.calculer_min_x()-5:gp.calculer_max_x()+5])
             hh += 1
 
 
@@ -99,6 +122,7 @@ def script_binarise_normalise():
             im_resize = sktr.resize(im, (20, 20))
             im_resize = sktr.rotate(im_resize, 3.1415/2.)
             skio.imsave(os.path.join(nom_dossier_principal, nom_dossier_lettres, "norm_"+nom_dossier_lettre), im_resize)
+
 
 def supprimer_en_trop():
     nom_dossier_principal = "lettres"
@@ -123,14 +147,16 @@ def get_training_data():
             dossier_lettre = os.listdir(os.path.join(nom_dossier_principal, nom_dossier_lettres))
             for nom_dossier_lettre in dossier_lettre:
                 if "norm" in nom_dossier_lettre:
-                    im = skio.imread(os.path.join(nom_dossier_principal, nom_dossier_lettres, nom_dossier_lettre), as_grey=True)
+                    im = skio.imread(os.path.join(nom_dossier_principal, nom_dossier_lettres, nom_dossier_lettre),
+                                     as_grey=True)
                     l_training_data.append([im.flatten(), string_letters.index(nom_dossier_lettres)])
                     X.append(im.flatten())
                     print(string_letters.index(nom_dossier_lettres))
                     y.append(string_letters.index(nom_dossier_lettres))
-    #return l_training_data, np.row_stack(X), np.row_stack(y)
+    # return l_training_data, np.row_stack(X), np.row_stack(y)
     return l_training_data, X, y
 
+
 if __name__ == "__main__":
-    #script_segmentation()
+    # script_segmentation()
     supprimer_en_trop()
