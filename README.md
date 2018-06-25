@@ -1,5 +1,5 @@
 # OHCR
-###Image processing to isolate hand-written characters in an image and to learn recognize them.
+### Image processing to isolate hand-written characters in an image and to learn recognize them.
 The algorithm is done in different steps:
 - An image is retrieved
 - The Canny's filter is used to keep only characters edges
@@ -10,7 +10,7 @@ The algorithm is done in different steps:
 
 
 
-###Traitement d'image pour isoler des caractères dans une image et apprendre à les reconnaître
+### Traitement d'image pour isoler des caractères dans une image et apprendre à les reconnaître
 
 L'algorithme pour isoler les caractères dans une image se fait de la manière suivante :  
 - On récupère une image
