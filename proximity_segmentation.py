@@ -33,35 +33,41 @@ class ProximitySegmentation:
     def segment(self):
         """
 
-        :return: liste de groupes de points
+        :return: list of PointGroup
         """
-        label_courant = 0
+        current_label = 0
         self.tags.append(gpoints.PointGroup())
-        self.tags[label_courant].append_point(self.edge_points.remove_point(0))
+        self.tags[current_label].append_point(self.edge_points.remove_point(0))
         while self.edge_points.points_number > 0:
 
-            while self.tags[label_courant].is_close_enough(self.edge_points, self.maximum_distance):
+            while self.tags[current_label].is_close_enough(self.edge_points, self.maximum_distance):
                 i = 0
-                nombre = self.edge_points.points_cluster
-                while i < nombre:
-                    if self.tags[label_courant].calculate_minimal_distance(self.edge_points.points_cluster[i]) \
+                number = self.edge_points.points_cluster
+                while i < number:
+                    if self.tags[current_label].calculate_minimal_distance(self.edge_points.points_cluster[i]) \
                             < self.maximum_distance:
-                        self.tags[label_courant].append_point(self.edge_points.remove_point(i))
-                        nombre -= 1
+                        self.tags[current_label].append_point(self.edge_points.remove_point(i))
+                        number -= 1
                     else:
                         i += 1
-            label_courant += 1
+            current_label += 1
             self.tags.append(gpoints.PointGroup())
-            self.tags[label_courant].append_point(self.edge_points.remove_point(0))
+            self.tags[current_label].append_point(self.edge_points.remove_point(0))
         aze = 0
         n_eti = len(self.tags)
         while aze < n_eti:
-            if self.tags[aze].nombre_points < 10:
+            if self.tags[aze].points_number < 10:
                 del self.tags[aze]
                 n_eti -= 1
             else:
                 aze += 1
         return self.tags
+
+    def segment_lines(self):
+        assert len(self.tags) > 1
+
+        # TODO find PointGroup with approximately common height on a sheet
+        pass
 
 
 def script_segmentation():
@@ -72,11 +78,11 @@ def script_segmentation():
     The result is stored
     :return:
     """
-    image_gris = skio.imread("entree\\papier_lettre.jpg", as_grey=True)
+    gray_image = skio.imread("entree\\papier_lettre.jpg", as_grey=True)
     # image = sktr.rotate(image, 3.1415/2.)
     tt = 300
     uu = 500
-    image_resize = sktr.resize(image_gris, (tt, uu))
+    image_resize = sktr.resize(gray_image, (tt, uu))
     # print(image_resize[10:20, 10:20])
     # image_gris = skc.rgb2gray(image_resize)
     # print(image_resize[10:20, 10:20])
@@ -116,27 +122,27 @@ def script_segmentation():
 
 
 def script_binarise_normalise():
-    nom_dossier_principal = "lettres"
-    dossier_lettres = os.listdir(nom_dossier_principal)
-    for nom_dossier_lettres in dossier_lettres:
-        dossier_lettre = os.listdir(os.path.join(nom_dossier_principal, nom_dossier_lettres))
-        for nom_dossier_lettre in dossier_lettre:
-            im = skio.imread(os.path.join(nom_dossier_principal, nom_dossier_lettres, nom_dossier_lettre), as_grey=True)
+    main_folder_name = "lettres"
+    characters_folder = os.listdir(main_folder_name)
+    for characters_folder_name in characters_folder:
+        character_folder = os.listdir(os.path.join(main_folder_name, characters_folder_name))
+        for character_folder_name in character_folder:
+            im = skio.imread(os.path.join(main_folder_name, characters_folder_name, character_folder_name), as_grey=True)
             im_resize = sktr.resize(im, (20, 20))
             im_resize = sktr.rotate(im_resize, 3.1415/2.)
-            skio.imsave(os.path.join(nom_dossier_principal, nom_dossier_lettres, "norm_"+nom_dossier_lettre), im_resize)
+            skio.imsave(os.path.join(main_folder_name, characters_folder_name, "norm_"+character_folder_name), im_resize)
 
 
-def supprimer_en_trop():
-    nom_dossier_principal = "lettres"
-    dossier_lettres = os.listdir(nom_dossier_principal)
-    for nom_dossier_lettres in dossier_lettres:
-        dossier_lettre = os.listdir(os.path.join(nom_dossier_principal, nom_dossier_lettres))
-        for nom_dossier_lettre in dossier_lettre:
-            if "norm_norm" in nom_dossier_lettre:
-                os.remove(os.path.join(nom_dossier_principal, nom_dossier_lettres, nom_dossier_lettre))
+def remove_too_much():
+    main_folder_name = "lettres"
+    characters_folder = os.listdir(main_folder_name)
+    for characters_folder_name in characters_folder:
+        character_folder = os.listdir(os.path.join(main_folder_name, characters_folder_name))
+        for character_folder_name in character_folder:
+            if "norm_norm" in character_folder_name:
+                os.remove(os.path.join(main_folder_name, characters_folder_name, character_folder_name))
 
 
 if __name__ == "__main__":
     # script_segmentation()
-    supprimer_en_trop()
+    remove_too_much()
