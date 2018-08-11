@@ -3,6 +3,8 @@ import skimage as sk
 import math
 import sys
 
+__author__ = "Clément Besnier"
+
 
 class Point:
     def __init__(self, x, y):
@@ -14,6 +16,10 @@ class Point:
 
 
 class GroupePoint:
+    """
+    Point cluster
+    Groupe de points
+    """
     def __init__(self):
         self.groupe_points = []
         self.nombre_points = 0
