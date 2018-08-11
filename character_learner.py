@@ -1,20 +1,26 @@
-# -*-coding:utf-8-*-
+"""
+Experimental script
+"""
 
-from segmenteur_par_proximite import *
+import os
 
+from learning import get_training_data
+
+import skimage.io as skio
 from sklearn import svm
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation
 from keras.optimizers import SGD
 
+
 __author__ = 'Clément Besnier'
 
 
 def learn_svm():
-    training_data, X, y = get_training_data()
+    training_data, x, y = get_training_data()
     clf = svm.SVC(decision_function_shape='ovo')
-    clf.fit(X, y)
-    im = skio.imread("test\\norm_100.jpg")
+    clf.fit(x, y)
+    im = skio.imread(os.path.join("test", "norm_100.jpg"))
     print(clf.predict([im.flatten()]))
 
 
@@ -37,8 +43,9 @@ def trial_nn():
                   optimizer=sgd,
                   metrics=['accuracy'])
     # TODO load X_train, y_train, X_test and y_test
-    model.fit(X_train, y_train, nb_epoch=20, batch_size=16)
-    score = model.evaluate(X_test, y_test, batch_size=16)
+    l_training_data, x_train, y_train = get_training_data()
+    model.fit(x_train, y_train, nb_epoch=20, batch_size=16)
+    # score = model.evaluate(x_test, y_test, batch_size=16)
 
 
 if __name__ == "__main__":
