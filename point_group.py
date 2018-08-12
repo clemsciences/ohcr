@@ -32,7 +32,7 @@ class PointGroup:
         self.points_cluster.append(point)
         self.points_number += 1
 
-    def calculer_barycentre(self):
+    def calculate_barycenter(self):
         sum_x = 0
         sum_y = 0
         for point in self.points_cluster:
