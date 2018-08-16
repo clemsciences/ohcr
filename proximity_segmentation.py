@@ -62,30 +62,44 @@ class ProximitySegmentation:
             else:
                 aze += 1
 
-    def segment_lines(self, width, height, angle_step, n_most_briliant):
+    def segment_lines(self, threshold):
+        # width, height, angle_step, n_most_briliant
+
         assert len(self.tags) > 1
         # TODO find PointGroup with approximately common height on a sheet
-        barycenters_points = [tag.calculate_barycenter() for tag in self.tags]
+        for i, tag in enumerate(self.tags):
+            tag.calculate_center()
+            tag.line = i
+        categories = list(range(len(self.tags)))
+        for i in range(len(self.tags)):
+            if i < len(self.tags)-1:
+                for j in range(i+1, len(self.tags)):
+                    if self.tags[i].is_on_the_same_line(self.tags[j], threshold):
+                        categories[j] = categories[i]
+                        self.tags[j].line = categories[i]
+
+        return categories
+
         # print(barycenters_points)
-        barycenters_xy = [(point.x, point.y) for point in barycenters_points]
-        thetas = np.deg2rad(np.arange(-90., 90., angle_step))
-        diag_len = int(round(np.math.sqrt(width ** 2 + height ** 2)))
-        rhos = np.linspace(-diag_len, diag_len, 2*diag_len)
+        # barycenters_xy = [(point.x, point.y) for point in barycenters_points]
 
-        cos_t = np.cos(thetas)
-        sin_t = np.sin(thetas)
-        num_thetas = len(thetas)
-
-        acc = np.zeros((2*diag_len, num_thetas), dtype=np.uint8)
-        for x, y in barycenters_xy:
-            for theta in range(num_thetas):
-                rho = diag_len + int(round(x*cos_t+y*sin_t))
-                acc[rho, theta] += 1
-        # find the most briliant points
-        for n in range(n_most_briliant):
-            index = np.argmax(acc)
-            acc[index] = 0.
-
+        # thetas = np.deg2rad(np.arange(-90., 90., angle_step))
+        # diag_len = int(round(np.math.sqrt(width ** 2 + height ** 2)))
+        # rhos = np.linspace(-diag_len, diag_len, 2*diag_len)
+        #
+        # cos_t = np.cos(thetas)
+        # sin_t = np.sin(thetas)
+        # num_thetas = len(thetas)
+        #
+        # acc = np.zeros((2*diag_len, num_thetas), dtype=np.uint8)
+        # for x, y in barycenters_xy:
+        #     for theta in range(num_thetas):
+        #         rho = diag_len + int(round(x*cos_t+y*sin_t))
+        #         acc[rho, theta] += 1
+        # # find the most briliant points
+        # for n in range(n_most_briliant):
+        #     index = np.argmax(acc)
+        #     acc[index] = 0.
 
 # [189.77777777777777, 255.60714285714286, 267.38235294117646, 91.83783783783784, 106.85714285714286,
 # 120.41666666666667, 133.15625, 161.7741935483871, 208.14705882352942, 240.06896551724137, 79.45714285714286,
@@ -132,6 +146,8 @@ class ProximitySegmentation:
 # 171.64285714285714, 139.48717948717947, 108.03125, 251.85714285714286, 266.96, 282.5806451612903,
 # 218.38181818181818, 188.0, 155.76363636363635, 123.37777777777778, 55.0, 94.35, 30.642857142857142, 71.75,
 # 5.393939393939394]
+
+
 def script_segmentation(src_folder, src_picture, dst_folder):
     """
     Retrieves the picture
@@ -145,7 +161,8 @@ def script_segmentation(src_folder, src_picture, dst_folder):
     tt = 300
     uu = 500
     image_resize = sktr.resize(gray_image, (tt, uu))
-    print(image_resize[10:20, 10:20])
+    # print(image_resize[10:20, 10:20])
+
     # image_gris = skc.rgb2gray(image_resize)
     # print(image_resize[10:20, 10:20])
     # skio.imsave("entree\\gris.jpg", image_resize)
@@ -172,19 +189,20 @@ def script_segmentation(src_folder, src_picture, dst_folder):
                 pc.append_point(gpoints.Point(i, j))
     spp = ProximitySegmentation(pc, 3)
     spp.segment()
-    spp.segment_lines()
-    # hh = 0
+    print(spp.segment_lines(10))
+    hh = 0
     # print(spp.tags)
-    # if not os.path.exists(dst_folder):
-    #     os.mkdir(dst_folder)
-    # for gp in spp.tags:
-    #     if gp.calculate_min_y() - 5 >= 0 and gp.calculate_max_y()+5 < tt and \
-    #             gp.calculate_min_x()-5 >= 0 and gp.calculate_max_x()+5 < uu:
-    #         mini_im = image_resize[gp.calculate_min_y() - 5:gp.calculate_max_y() + 5,
-    #         gp.calculate_min_x() - 5:gp.calculate_max_x() + 5]
-    #
-    #         skio.imsave(os.path.join(dst_folder, str(hh) + ".jpg"), sktr.rotate(mini_im, -90., resize=True))
-    #         hh += 1
+    if not os.path.exists(dst_folder):
+        os.mkdir(dst_folder)
+    for gp in spp.tags:
+        if gp.calculate_min_y() - 5 >= 0 and gp.calculate_max_y()+5 < tt and \
+                gp.calculate_min_x()-5 >= 0 and gp.calculate_max_x()+5 < uu:
+            mini_im = image_resize[gp.calculate_min_y() - 5:gp.calculate_max_y() + 5,
+            gp.calculate_min_x() - 5:gp.calculate_max_x() + 5]
+
+            skio.imsave(os.path.join(dst_folder, str(hh) + ".jpg"), sktr.rotate(mini_im, -90., resize=True))
+            print("numero", hh, "ligne", gp.line)
+            hh += 1
 
 
 def script_binarise_normalise():

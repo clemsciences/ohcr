@@ -23,6 +23,9 @@ class PointGroup:
     def __init__(self):
         self.points_cluster = []
         self.points_number = 0
+        self.barycenter = None
+        self.line = None
+        self.center = None
 
     def attribute(self, points_group: list):
         self.points_cluster = points_group
@@ -38,7 +41,7 @@ class PointGroup:
         for point in self.points_cluster:
             sum_x += point.x
             sum_y += point.y
-        return Point(sum_x / self.points_number, sum_y / self.points_number)
+        self.barycenter = Point(sum_x / self.points_number, sum_y / self.points_number)
 
     def calculate_minimal_distance(self, point: Point):
         minimal_distance = 999999
@@ -96,3 +99,12 @@ class PointGroup:
             if max_y < point.y:
                 max_y = point.y
         return max_y
+
+    def calculate_center(self):
+        min_x, min_y, max_x, max_y = self.calculate_min_x(), self.calculate_min_y(), self.calculate_max_x(), \
+                                     self.calculate_max_y()
+        self.center = Point((max_x - min_x)/2. + min_x, (max_y - min_y)/2. + min_y)
+        return self.center
+
+    def is_on_the_same_line(self, other_pg, threshold):
+        return abs(self.center.y - other_pg.center.y) < threshold
