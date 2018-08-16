@@ -62,6 +62,25 @@ class ProximitySegmentation:
             else:
                 aze += 1
 
+    def calculate_sorted_tags(self):
+        assert len(self.tags) > 1
+        sorted_tags = []
+        for i, tag in enumerate(self.tags):
+            tag.calculate_center()
+        for i, tag in enumerate(self.tags):
+            if i < len(self.tags) - 1:
+                next_gp = self.tags[i]
+                for j, tagj in enumerate(self.tags[i+1:]):
+                    if self.tags[j].center.x < next_gp.center.xx:
+                        next_gp = self.tags[j]
+                    elif self.tags[j].center.x == next_gp.center.x:
+                        if self.tags[j].center.y < next_gp.center.y:
+                            next_gp = self.tags[j]
+                sorted_tags.append(next_gp)
+        return sorted_tags
+
+
+
     def segment_lines(self, threshold):
         # width, height, angle_step, n_most_briliant
 
