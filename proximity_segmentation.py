@@ -5,6 +5,7 @@
 import os
 
 import numpy as np
+import scipy.ndimage
 
 import point_group as gpoints
 
@@ -79,8 +80,6 @@ class ProximitySegmentation:
                 sorted_tags.append(next_gp)
         return sorted_tags
 
-
-
     def segment_lines(self, threshold):
         # width, height, angle_step, n_most_briliant
 
@@ -119,6 +118,7 @@ class ProximitySegmentation:
         # for n in range(n_most_briliant):
         #     index = np.argmax(acc)
         #     acc[index] = 0.
+
 
 # [189.77777777777777, 255.60714285714286, 267.38235294117646, 91.83783783783784, 106.85714285714286,
 # 120.41666666666667, 133.15625, 161.7741935483871, 208.14705882352942, 240.06896551724137, 79.45714285714286,
@@ -191,6 +191,7 @@ def script_segmentation(src_folder, src_picture, dst_folder):
     # skio.imsave("entree\\sobel.jpg", image_sobel)
     # a = image_sobel > 0.005*np.ones(image_sobel.shape)
     image_canny = np.uint8(skf.canny(image_resize))*255
+    energy = calculate_energy(image_canny)
     # print(image_canny[10:20, 100:150])
     skio.imsave(os.path.join(src_folder, "canny.jpg"), image_canny)
     # n_points_choisis = int(tt*uu*0.1)
@@ -217,11 +218,16 @@ def script_segmentation(src_folder, src_picture, dst_folder):
         if gp.calculate_min_y() - 5 >= 0 and gp.calculate_max_y()+5 < tt and \
                 gp.calculate_min_x()-5 >= 0 and gp.calculate_max_x()+5 < uu:
             mini_im = image_resize[gp.calculate_min_y() - 5:gp.calculate_max_y() + 5,
-            gp.calculate_min_x() - 5:gp.calculate_max_x() + 5]
+                      gp.calculate_min_x() - 5:gp.calculate_max_x() + 5]
 
             skio.imsave(os.path.join(dst_folder, str(hh) + ".jpg"), sktr.rotate(mini_im, -90., resize=True))
             print("numero", hh, "ligne", gp.line)
             hh += 1
+
+
+def calculate_energy(image):
+    kernel = np.ones((5, 5))
+    return scipy.ndimage.filters.convolve(image, kernel)
 
 
 def script_binarise_normalise():
