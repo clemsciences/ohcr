@@ -71,7 +71,7 @@ class ProximitySegmentation:
             if i < len(self.tags) - 1:
                 next_gp = self.tags[i]
                 for j, tagj in enumerate(self.tags[i+1:]):
-                    if self.tags[j].center.x < next_gp.center.xx:
+                    if self.tags[j].center.x < next_gp.center.x:
                         next_gp = self.tags[j]
                     elif self.tags[j].center.x == next_gp.center.x:
                         if self.tags[j].center.y < next_gp.center.y:
