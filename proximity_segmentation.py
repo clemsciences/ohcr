@@ -226,8 +226,14 @@ def script_segmentation(src_folder, src_picture, dst_folder):
 
 
 def calculate_energy(image):
-    kernel = np.ones((5, 5))
-    return scipy.ndimage.filters.convolve(image, kernel)
+    # size = 11
+    energy = np.zeros(image.shape)
+    size_max = 45
+    for size in range(3, size_max, 4):
+        kernel = np.ones((size, size))
+        energy += (size_max-size)/255*scipy.ndimage.filters.convolve(image, kernel)
+    energy = 1000*(energy == np.zeros(image.shape)) + energy
+    return energy
 
 
 def script_binarise_normalise():
