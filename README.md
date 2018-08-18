@@ -8,6 +8,8 @@ The algorithm is done in different steps:
 - Clusters are framed
 - The final image is stored
 
+#### Line extraction
+The edge image is convoluted with ones kernels of sifferent sizes. The larger the kernel size is, the lesswr weight it has. Then, lines are defined as shortest paths from one side to the other side.
 
 
 ### Traitement d'image pour isoler des caractères dans une image et apprendre à les reconnaître
