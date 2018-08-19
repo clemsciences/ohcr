@@ -98,6 +98,93 @@ class ProximitySegmentation:
 
         return categories
 
+
+def neighbors(u, height, width):
+    l = []
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            if u[0] == 0 and i == -1:
+                continue
+            if u[0] == height-1 and i == 1:
+                continue
+            if u[1] == 0 and j == -1:
+                continue
+            if u[1] == width-1 and j == 1:
+                continue
+            if i != 0 and j != 0:
+                l.append((u[0]+i, u[1]+j))
+    return l
+
+
+def test_find_shortest_paths(energy):
+    height, width = energy.shape
+    i = int(height/2)
+    visited, path = dijkstra((i, 0), height, width, energy)
+    print(visited)
+    print(path)
+    print("fini")
+
+
+def find_shortest_paths(energy):
+    height, width = energy.shape
+    for i in range(0, height, 5):
+        visited, path = dijkstra((i, 0), height, width, energy)
+        print(visited)
+        print(path)
+    print("fini")
+
+
+def dijkstra(src, height, width, energy):
+    visited = {src: 0}
+    path = np.zeros((height, width))
+    nodes = set([(i, j) for i in range(height) for j in range(width)])
+    while len(nodes) != 0:
+        min_node = None
+        for node in nodes:
+            if node in visited:
+                if min_node is None:
+                    min_node = node
+                elif visited[node] < visited[min_node]:
+                    min_node = node
+        if min_node is None:
+            break
+        nodes.remove(min_node)
+        current_weight = visited[min_node]
+        for neighbor in neighbors(min_node, height, width):
+            weight = current_weight + energy[neighbor]
+            if neighbor not in visited or weight < visited[neighbor]:
+                visited[neighbor] = weight
+                path[neighbor] = 1
+    return visited, path
+
+        # u = np.argmin([energy[v] for v in neighbors(node, height, width)])
+        # nodes.remove(u)
+        # if u[1] == width-1:
+        #     return cost, previous
+        # for v in neighbors(u, height, width):
+        #     alt = cost[u]
+        #     if alt < cost[v]:
+        #         cost[v] = alt
+        #         previous[v] = u
+
+
+
+
+
+
+
+        # open_list.append((i, 0))
+        # while len(open_list) != 0:
+        #     u = open_list.pop()
+        #     if u[1] == width - 1:
+        #         return path
+        #     for v in neighbors(u, height, width):
+        #         if cost[v]  <
+
+
+
+
+
         # print(barycenters_points)
         # barycenters_xy = [(point.x, point.y) for point in barycenters_points]
 
@@ -192,8 +279,9 @@ def script_segmentation(src_folder, src_picture, dst_folder):
     # a = image_sobel > 0.005*np.ones(image_sobel.shape)
     image_canny = np.uint8(skf.canny(image_resize))*255
     energy = calculate_energy(image_canny)
-    # print(image_canny[10:20, 100:150])
+    find_shortest_paths(energy)
     skio.imsave(os.path.join(src_folder, "canny.jpg"), image_canny)
+
     # n_points_choisis = int(tt*uu*0.1)
     # l_points = []
     # yy = 0
@@ -228,10 +316,10 @@ def script_segmentation(src_folder, src_picture, dst_folder):
 def calculate_energy(image):
     # size = 11
     energy = np.zeros(image.shape)
-    size_max = 45
+    size_max = 5
     for size in range(3, size_max, 4):
         kernel = np.ones((size, size))
-        energy += (size_max-size)/255*scipy.ndimage.filters.convolve(image, kernel)
+        energy += (size_max-size)*scipy.ndimage.filters.convolve(image, kernel)
     energy = 1000*(energy == np.zeros(image.shape)) + energy
     return energy
 
@@ -259,5 +347,12 @@ def remove_too_much():
 
 
 if __name__ == "__main__":
-    script_segmentation("input", "characters_sheet.jpg", "letters")
     # remove_too_much()
+
+    # script_segmentation("input", "characters_sheet.jpg", "letters")
+    image_canny = skio.imread(os.path.join("input", "canny.jpg"))
+    print(image_canny.shape)
+    image_canny = sktr.resize(image_canny, (150, 250))
+    energy = calculate_energy(image_canny)
+    print(energy)
+    test_find_shortest_paths(energy)
