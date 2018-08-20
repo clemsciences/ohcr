@@ -316,9 +316,9 @@ def script_segmentation(src_folder, src_picture, dst_folder):
 def calculate_energy(image):
     # size = 11
     energy = np.zeros(image.shape)
-    size_max = 5
+    size_max = 45
     for size in range(3, size_max, 4):
-        kernel = np.ones((size, size))
+        kernel = np.ones((size, size))*10
         energy += (size_max-size)*scipy.ndimage.filters.convolve(image, kernel)
     energy = 1000*(energy == np.zeros(image.shape)) + energy
     return energy
@@ -351,8 +351,10 @@ if __name__ == "__main__":
 
     # script_segmentation("input", "characters_sheet.jpg", "letters")
     image_canny = skio.imread(os.path.join("input", "canny.jpg"))
-    print(image_canny.shape)
-    image_canny = sktr.resize(image_canny, (150, 250))
-    energy = calculate_energy(image_canny)
-    print(energy)
-    test_find_shortest_paths(energy)
+    skio.imshow(image_canny, plugin="matplotlib")
+    # print(image_canny.shape)
+    # image_canny = sktr.resize(image_canny, (150, 250))
+    # energy = calculate_energy(image_canny)
+    # print(energy)
+    # test_find_shortest_paths(energy)
+
