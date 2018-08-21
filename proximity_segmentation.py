@@ -157,55 +157,45 @@ def dijkstra(src, height, width, energy):
                 path[neighbor] = 1
     return visited, path
 
-        # u = np.argmin([energy[v] for v in neighbors(node, height, width)])
-        # nodes.remove(u)
-        # if u[1] == width-1:
-        #     return cost, previous
-        # for v in neighbors(u, height, width):
-        #     alt = cost[u]
-        #     if alt < cost[v]:
-        #         cost[v] = alt
-        #         previous[v] = u
+    # u = np.argmin([energy[v] for v in neighbors(node, height, width)])
+    # nodes.remove(u)
+    # if u[1] == width-1:
+    #     return cost, previous
+    # for v in neighbors(u, height, width):
+    #     alt = cost[u]
+    #     if alt < cost[v]:
+    #         cost[v] = alt
+    #         previous[v] = u
+
+    # open_list.append((i, 0))
+    # while len(open_list) != 0:
+    #     u = open_list.pop()
+    #     if u[1] == width - 1:
+    #         return path
+    #     for v in neighbors(u, height, width):
+    #         if cost[v]  <
 
 
+    # print(barycenters_points)
+    # barycenters_xy = [(point.x, point.y) for point in barycenters_points]
 
-
-
-
-
-        # open_list.append((i, 0))
-        # while len(open_list) != 0:
-        #     u = open_list.pop()
-        #     if u[1] == width - 1:
-        #         return path
-        #     for v in neighbors(u, height, width):
-        #         if cost[v]  <
-
-
-
-
-
-        # print(barycenters_points)
-        # barycenters_xy = [(point.x, point.y) for point in barycenters_points]
-
-        # thetas = np.deg2rad(np.arange(-90., 90., angle_step))
-        # diag_len = int(round(np.math.sqrt(width ** 2 + height ** 2)))
-        # rhos = np.linspace(-diag_len, diag_len, 2*diag_len)
-        #
-        # cos_t = np.cos(thetas)
-        # sin_t = np.sin(thetas)
-        # num_thetas = len(thetas)
-        #
-        # acc = np.zeros((2*diag_len, num_thetas), dtype=np.uint8)
-        # for x, y in barycenters_xy:
-        #     for theta in range(num_thetas):
-        #         rho = diag_len + int(round(x*cos_t+y*sin_t))
-        #         acc[rho, theta] += 1
-        # # find the most briliant points
-        # for n in range(n_most_briliant):
-        #     index = np.argmax(acc)
-        #     acc[index] = 0.
-
+    # thetas = np.deg2rad(np.arange(-90., 90., angle_step))
+    # diag_len = int(round(np.math.sqrt(width ** 2 + height ** 2)))
+    # rhos = np.linspace(-diag_len, diag_len, 2*diag_len)
+    #
+    # cos_t = np.cos(thetas)
+    # sin_t = np.sin(thetas)
+    # num_thetas = len(thetas)
+    #
+    # acc = np.zeros((2*diag_len, num_thetas), dtype=np.uint8)
+    # for x, y in barycenters_xy:
+    #     for theta in range(num_thetas):
+    #         rho = diag_len + int(round(x*cos_t+y*sin_t))
+    #         acc[rho, theta] += 1
+    # # find the most briliant points
+    # for n in range(n_most_briliant):
+    #     index = np.argmax(acc)
+    #     acc[index] = 0.
 
 # [189.77777777777777, 255.60714285714286, 267.38235294117646, 91.83783783783784, 106.85714285714286,
 # 120.41666666666667, 133.15625, 161.7741935483871, 208.14705882352942, 240.06896551724137, 79.45714285714286,
