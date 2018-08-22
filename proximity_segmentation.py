@@ -81,7 +81,7 @@ class ProximitySegmentation:
         return sorted_tags
 
     def segment_lines(self, threshold):
-        # width, height, angle_step, n_most_briliant
+        # width, height, angle_step, n_most_brilliant
 
         assert len(self.tags) > 1
         # TODO find PointGroup with approximately common height on a sheet
@@ -99,8 +99,8 @@ class ProximitySegmentation:
         return categories
 
 
-def neighbors(u, height, width):
-    l = []
+def find_neighbors(u, height, width):
+    neighbors = []
     for i in range(-1, 2):
         for j in range(-1, 2):
             if u[0] == 0 and i == -1:
@@ -112,8 +112,8 @@ def neighbors(u, height, width):
             if u[1] == width-1 and j == 1:
                 continue
             if i != 0 and j != 0:
-                l.append((u[0]+i, u[1]+j))
-    return l
+                neighbors.append((u[0]+i, u[1]+j))
+    return neighbors
 
 
 def test_find_shortest_paths(energy):
@@ -122,7 +122,7 @@ def test_find_shortest_paths(energy):
     visited, path = dijkstra((i, 0), height, width, energy)
     print(visited)
     print(path)
-    print("fini")
+    print("finished")
 
 
 def find_shortest_paths(energy):
@@ -131,7 +131,7 @@ def find_shortest_paths(energy):
         visited, path = dijkstra((i, 0), height, width, energy)
         print(visited)
         print(path)
-    print("fini")
+    print("finished")
 
 
 def dijkstra(src, height, width, energy):
@@ -150,7 +150,7 @@ def dijkstra(src, height, width, energy):
             break
         nodes.remove(min_node)
         current_weight = visited[min_node]
-        for neighbor in neighbors(min_node, height, width):
+        for neighbor in find_neighbors(min_node, height, width):
             weight = current_weight + energy[neighbor]
             if neighbor not in visited or weight < visited[neighbor]:
                 visited[neighbor] = weight
@@ -174,7 +174,6 @@ def dijkstra(src, height, width, energy):
     #         return path
     #     for v in neighbors(u, height, width):
     #         if cost[v]  <
-
 
     # print(barycenters_points)
     # barycenters_xy = [(point.x, point.y) for point in barycenters_points]
@@ -267,10 +266,10 @@ def script_segmentation(src_folder, src_picture, dst_folder):
     # print(image_sobel[10:20, 10:20])
     # skio.imsave("entree\\sobel.jpg", image_sobel)
     # a = image_sobel > 0.005*np.ones(image_sobel.shape)
-    image_canny = np.uint8(skf.canny(image_resize))*255
-    energy = calculate_energy(image_canny)
+    canny_image = np.uint8(skf.canny(image_resize))*255
+    energy = calculate_energy(canny_image)
     find_shortest_paths(energy)
-    skio.imsave(os.path.join(src_folder, "canny.jpg"), image_canny)
+    skio.imsave(os.path.join(src_folder, "canny.jpg"), canny_image)
 
     # n_points_choisis = int(tt*uu*0.1)
     # l_points = []
@@ -283,7 +282,7 @@ def script_segmentation(src_folder, src_picture, dst_folder):
     pc = gpoints.PointGroup()
     for i in range(uu):
         for j in range(tt):
-            if image_canny[j, i] == 255:
+            if canny_image[j, i] == 255:
                 pc.append_point(gpoints.Point(i, j))
     spp = ProximitySegmentation(pc, 3)
     spp.segment()
@@ -296,10 +295,10 @@ def script_segmentation(src_folder, src_picture, dst_folder):
         if gp.calculate_min_y() - 5 >= 0 and gp.calculate_max_y()+5 < tt and \
                 gp.calculate_min_x()-5 >= 0 and gp.calculate_max_x()+5 < uu:
             mini_im = image_resize[gp.calculate_min_y() - 5:gp.calculate_max_y() + 5,
-                      gp.calculate_min_x() - 5:gp.calculate_max_x() + 5]
+                                   gp.calculate_min_x() - 5:gp.calculate_max_x() + 5]
 
             skio.imsave(os.path.join(dst_folder, str(hh) + ".jpg"), sktr.rotate(mini_im, -90., resize=True))
-            print("numero", hh, "ligne", gp.line)
+            print("number", hh, "line", gp.line)
             hh += 1
 
 
@@ -315,19 +314,21 @@ def calculate_energy(image):
 
 
 def script_binarise_normalise():
-    main_folder_name = "lettres"
+    main_folder_name = "letters"
     characters_folder = os.listdir(main_folder_name)
     for characters_folder_name in characters_folder:
         character_folder = os.listdir(os.path.join(main_folder_name, characters_folder_name))
         for character_folder_name in character_folder:
-            im = skio.imread(os.path.join(main_folder_name, characters_folder_name, character_folder_name), as_grey=True)
+            im = skio.imread(os.path.join(main_folder_name, characters_folder_name, character_folder_name),
+                             as_grey=True)
             im_resize = sktr.resize(im, (20, 20))
             im_resize = sktr.rotate(im_resize, 3.1415/2.)
-            skio.imsave(os.path.join(main_folder_name, characters_folder_name, "norm_"+character_folder_name), im_resize)
+            skio.imsave(os.path.join(main_folder_name, characters_folder_name, "norm_"+character_folder_name),
+                        im_resize)
 
 
 def remove_too_much():
-    main_folder_name = "lettres"
+    main_folder_name = "letters"
     characters_folder = os.listdir(main_folder_name)
     for characters_folder_name in characters_folder:
         character_folder = os.listdir(os.path.join(main_folder_name, characters_folder_name))
@@ -347,4 +348,3 @@ if __name__ == "__main__":
     # energy = calculate_energy(image_canny)
     # print(energy)
     # test_find_shortest_paths(energy)
-
