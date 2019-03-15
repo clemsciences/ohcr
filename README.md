@@ -1,4 +1,4 @@
-# OHCR
+# OHCR (Optical Hand-written Character Recognition)
 ### Image processing to isolate hand-written characters in an image and to learn recognize them.
 The algorithm is done in different steps:
 - An image is retrieved
@@ -22,3 +22,5 @@ L'algorithme pour isoler les caractères dans une image se fait de la manière s
 - On retient les groupes qui ont au moins un certain nombre de points
 - On encadre les caractères obtenus
 - On enregistre l'image final
+
+A lire : article dans le magazine Programmez! de mars 2019 #227 "Python : faire une intelligence artificielle pour de la reconnaissance de caractères avec OpenCV et Keras".
